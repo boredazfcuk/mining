@@ -1,5 +1,5 @@
 # mining
-Scripts I use for automating various tasks on my crypto mining rig. They only work for nVidia cards as they use the nvidia-smi utility to interrogate the GPUs. Version: The nVidia-SMI utility needs to be installed, but it should be if you installed the drivers with the default options.
+Scripts I use for automating various tasks on my crypto mining rig. They only work for nVidia cards as they use the nvidia-smi utility to interrogate the GPUs. The nVidia-SMI utility needs to be installed, but it should be if you installed the drivers with the default options.
 
 I run these scripts from C:\Scripts and log files are written to C:\Scripts\Logs. You may be able to place them in different folders, but I haven't accounted for folder paths with space names, so that could cause a problem at the moment.
 
