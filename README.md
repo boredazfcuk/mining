@@ -8,7 +8,7 @@ The scripts are:
 
 2) Monitor-ExcavatorRelaunch.vbs - This watches the excavator.exe program from NHM2 and just outputs a notification each time it restarts. If a GPU is overclocked too much, excavator will crash and re-launch quite often. This script should be run from cscript.exe and not WScript.
 
-3) Monitor-GPUs.vbs - This is a "EXE/Script Advanced" Sensor for PRTG Network Monitor. It needs updating with the UUIDs for each of your GPUs.
+3) Monitor-GPUs.vbs - This is a "EXE/Script Advanced" Sensor for PRTG Network Monitor. It needs updating with the UUIDs for each of your GPUs. It needs to be run with a paramete. This is the number of the GPU you want to interrogate, starting at 0.
 
 4) Monitor-GPUsTotal.vbs - This checks the GPUs aren't in an error state and restarts the rig if a GPU has a fault.
 
