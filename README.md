@@ -26,4 +26,4 @@ The scripts are:
 
 These scripts are a bit rough at the moment. I might get around to polishing them up a bit more if I get time, or if I come across new errors that need fixing, or find a better way of doing things.
 
-If you want to buy me a beer for my troubles, my BTC address is: 1E8kUsm3qouXdVYvLMjLbw7rXNmN2jZesL
+If you want to buy me a beer for my troubles and out of the money you make from having a higer mining uptime, then my BTC address is: 1E8kUsm3qouXdVYvLMjLbw7rXNmN2jZesL
