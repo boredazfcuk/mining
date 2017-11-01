@@ -43,7 +43,7 @@ If IsAlive(DefaultGateway) Then
 	'----- All is good so do nothing -----
 	'WScript.Echo("He's Alive! ALIVE!")
 Else
-	'----- If the ping failed, increase the number of attempts to 30 and see if all of them are lost -----
+	'----- If the ping failed, increase the number of attempts and see if all of them are lost -----
 	PingAttempts = 10
 	'----- Prolonged check to see if the gateway is responding -----
 	If IsAlive(DefaultGateway) Then
