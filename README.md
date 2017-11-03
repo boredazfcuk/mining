@@ -22,7 +22,9 @@ The scripts are:
 
 9) Monitor-PRTGProbeService.vbs - The PRTG Network Monitor Probe service on my machine has a habit of not starting up after a reboot. This just checks it's running, and starts it up if it isn't.
 
-10) This is an XML export of the scheduled task that I run at startup and repeat every 1 minute. Import it into your task scheduler and then modify it to remove which scripts you don't want to run.
+10) This is an XML export of the scheduled task that I run at startup and repeat every 1 minute. Import it into your task scheduler and then modify it to remove which scripts you don't want to run (Monitor-Overclocks.vbs not included).
+
+10) Monitor-OverClocks.vbs - This checks the current GPU Memory Overclocks and if they are less than the GPU's max overclocks, re-applies an MSI Afterburner profile. If the script is run without a parameter, it will assume profile 1. If you want to apply a different profile, pass the profile number as a parameter (will only accept 1-5) eg wscript.exe Monitor-Overclocks.vbs 3
 
 These scripts are a bit rough at the moment. I might get around to polishing them up a bit more if I get time, or if I come across new errors that need fixing, or find a better way of doing things.
 
