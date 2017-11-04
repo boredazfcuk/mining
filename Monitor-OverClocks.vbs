@@ -1,5 +1,9 @@
 Option Explicit
 
+'
+' https://github.com/boredazfcuk/mining
+'
+
 '----- Initilise Variables -----
 Dim Profile, MSIAfterburner, MSIAfterburnerRegPath, sTempFile, oWMI, oFSO, oShell, cProcesses, Process, MSIAfterburnerPath, oFile, RunSilent, UninstallString, MSIAfterburnerInstallPath
 '----- Initialise CheckMemoryOverclocks Variables -----

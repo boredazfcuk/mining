@@ -1,5 +1,9 @@
 Option Explicit
 
+'
+' https://github.com/boredazfcuk/mining
+'
+
 '----- Initialise Variables -----
 Dim oService
 

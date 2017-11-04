@@ -1,5 +1,9 @@
 Option Explicit
 
+'
+' https://github.com/boredazfcuk/mining
+'
+
 '----- Initialise Variables -----
 Dim oFSO, CurrentFolder, sXMLFile, fXMLFile, aVBSFiles(6), VBSFile, Count, oShell, RunSilent
 

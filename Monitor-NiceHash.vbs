@@ -1,5 +1,9 @@
 Option Explicit
 
+'
+' https://github.com/boredazfcuk/mining
+'
+
 Const NHML="NiceHashMinerLegacy.exe"
 Const maxAgeSeconds=180
 Const OpenAsASCII=0 

@@ -1,5 +1,9 @@
 Option Explicit
 
+'
+' https://github.com/boredazfcuk/mining
+'
+
 '----- Define variables -----
 Dim nVidiaSMI, QueryTotalMem, OutputFormat, oShell, oFSO, sTempFile, CurrentFolder, LogFolder, RunSilent, oFile, oGPUMemoryTotal, GPUMemoryTotal, aGPUMemoryTotal, sLogFile, fLogFile, Count, Total
 

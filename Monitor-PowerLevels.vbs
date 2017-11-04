@@ -1,5 +1,9 @@
 Option Explicit
 
+'
+' https://github.com/boredazfcuk/mining
+'
+
 '----- Initialise Variables -----
 Dim oShell, oFSO, PowerLimit, nVidiaSMI, QueryPowerLimit, OutputFormat, sTempFile, CurrentFolder, LogFolder, Return, oFile, oGPUPowerLevels, GPUPowerLevels, aGPUPowerLevels, sLogFile, fLogFile, Count, Total
 

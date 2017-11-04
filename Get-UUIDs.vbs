@@ -1,5 +1,9 @@
 Option Explicit
 
+'
+' https://github.com/boredazfcuk/mining
+'
+
 '----- Initilise variables -----
 Dim nVidiaSMI, QueryUUIDs, OutputFormat, RegKey, oShell, oFSO, sTempFile, Return, oFile, GPUUUIDs, aGPUUUIDs, Count
 

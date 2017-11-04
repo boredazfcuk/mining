@@ -1,5 +1,9 @@
 Option Explicit
 
+'
+' https://github.com/boredazfcuk/mining
+'
+
 '----- Create Variables -----
 Dim oShell, oFSO, CurrentFolder, LogFolder, sLogFile, oWMI, cGateways, Gateway, DefaultGateway, PingAttempts
 
