@@ -17,7 +17,7 @@ Dim oDictionary, aDeDupedMiners
 '----- Restart NHML Variables -----
 Dim fLogFile
 
-Set oFSO  = CreateObject("Scripting.FileSystemObject")
+Set oFSO = CreateObject("Scripting.FileSystemObject")
 Set oShell = CreateObject("WScript.Shell")
 
 sTempFile = oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName

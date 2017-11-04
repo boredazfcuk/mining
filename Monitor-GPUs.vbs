@@ -2,10 +2,11 @@ Option Explicit
 
 Dim oShell, GPUUserIndex, TargetGPU, GPUDevices, oGPUDevices, GPUUUIDs, oGPUUUIDs, aGPUUUIDS, i, GPUIndex, GPUResults
 Dim oGPUResults, aGPUResults, GPUUUID, GPUName, GPUBIOS, GPUDriver, GPUUtilization, GPUUtilisationFree, nVidiaSMI
-Dim OutputFormat, GPUTemperature, GPUFanSpeed, GPUMemTotal, GPUMemUsed, GPUMemFree, GPUPowerDraw
+Dim OutputFormat, GPUTemperature, GPUFanSpeed, GPUMemTotal, GPUMemUsed, GPUMemFree, GPUPowerDraw, RegKey
 
 nVidiaSMI="""C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"""
 OutputFormat="--format=csv,noheader,nounits"
+RegKey="HKCU\Software\boredazfcuk\mining\GPUs\"
 
 Set oShell=CreateObject("WScript.Shell")
 Set oGPUDevices = oShell.Exec(nVidiaSMI & " -i 0 --query-gpu=count " & OutputFormat)
@@ -16,29 +17,9 @@ If WScript.Arguments.Count <> 1 then
 	WScript.Quit(0)
 End If
 GPUUserIndex = WScript.Arguments.Item(0)
-Select Case GPUUserIndex
-	Case "0"
-		TargetGPU="<Inset GUID from Get-UUIDs.vbs here>"
-		Trim(TargetGPU)
-	Case "1"
-		TargetGPU="<Inset GUID from Get-UUIDs.vbs here>"
-		Trim(TargetGPU)
-	Case "2"
-		TargetGPU="<Inset GUID from Get-UUIDs.vbs here>"
-		Trim(TargetGPU)
-	Case "3"
-		TargetGPU="<Inset GUID from Get-UUIDs.vbs here>"
-		Trim(TargetGPU)
-	Case "4"
-		TargetGPU="<Inset GUID from Get-UUIDs.vbs here>"
-		Trim(TargetGPU)
-	Case "5"
-		TargetGPU="<Inset GUID from Get-UUIDs.vbs here>"
-		Trim(TargetGPU)
-	Case Else
-		wscript.echo "Invalid GPUNumber"
-		wscript.quit(1)
-End Select
+TargetGPU=oShell.RegRead(RegKey & WScript.Arguments.Item(0))
+Trim(TargetGPU)
+
 Do While Not oGPUDevices.StdOut.AtEndOfStream
 	GPUDevices = oGPUDevices.StdOut.ReadLine
 	Trim(GPUDevices)
@@ -77,9 +58,13 @@ GPUMemTotal = aGPUResults(7)
 GPUMemUsed = aGPUResults(8)
 GPUMemFree = aGPUResults(9)
 GPUPowerDraw = aGPUResults(10)
-GPUMemTotal = GPUMemTotal*1024*1024
-GPUMemUsed = GPUMemUsed*1024*1024
-GPUMemFree =GPUMemFree*1024*1024
+If GPUMemTotal = "[Unknown Error]" Then
+	GPUMemUsed = 0
+Else
+	GPUMemTotal = GPUMemTotal*1024*1024
+	GPUMemUsed = GPUMemUsed*1024*1024
+	GPUMemFree =GPUMemFree*1024*1024
+End If
  
 wscript.echo "<?xml version=""1.0"" encoding=""Windows-1252"" ?>"
 wscript.echo "<PRTG>"
@@ -138,7 +123,7 @@ wscript.echo "		<warning>0</warning>"
 wscript.echo "		<value>" & GPUPowerDraw & "</value>"
 wscript.echo "		<float>1</float>"
 wscript.echo "		<LimitMaxError>125</LimitMaxError>"
-wscript.echo "		<LimitMinError>80</LimitMinError>"
+wscript.echo "		<LimitMinError>60</LimitMinError>"
 wscript.echo "		<LimitErrorMsg>Undervolt Error</LimitErrorMsg>"
 wscript.echo "		<LimitMode>1</LimitMode>"
 wscript.echo "	</result>"

@@ -55,7 +55,7 @@ For Count = 0 To UBound(aGPUPowerLimit)-1
 	Total = Total + Int(aGPUPowerLimit(Count))
 Next
 
-'----- If running total is more tha maximum power limit -----
+'----- If running total is more than maximum power limit -----
 If Total > MaxPower Then
 	'----- Target log file -----
 	Set fLogFile = oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
