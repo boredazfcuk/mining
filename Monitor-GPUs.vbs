@@ -1,6 +1,6 @@
 Option Explicit
 
-Dim oShell, GPUUserIndex, TargetGPU, GPUDevices, oGPUDevices, GPUUUIDs, oGPUUUIDs, aGPUUUIDS, i, GPUIndex, GPUResults
+Dim oShell, TargetGPU, GPUDevices, oGPUDevices, GPUUUIDs, oGPUUUIDs, aGPUUUIDS, i, GPUIndex, GPUResults
 Dim oGPUResults, aGPUResults, GPUUUID, GPUName, GPUBIOS, GPUDriver, GPUUtilization, GPUUtilisationFree, nVidiaSMI
 Dim OutputFormat, GPUTemperature, GPUFanSpeed, GPUMemTotal, GPUMemUsed, GPUMemFree, GPUPowerDraw, RegKey
 
@@ -16,7 +16,6 @@ If WScript.Arguments.Count <> 1 then
 	WScript.Echo "Usage: cscript.exe //nologo GPUDetails.vbs <GPUNumber>"
 	WScript.Quit(0)
 End If
-GPUUserIndex = WScript.Arguments.Item(0)
 TargetGPU=oShell.RegRead(RegKey & WScript.Arguments.Item(0))
 Trim(TargetGPU)
 
@@ -66,7 +65,7 @@ Else
 	GPUMemFree =GPUMemFree*1024*1024
 End If
  
-wscript.echo "<?xml version=""1.0"" encoding=""Windows-1252"" ?>"
+wscript.echo "<?xml version=""1.0"" encoding=""Windows-1252""?>"
 wscript.echo "<PRTG>"
 wscript.echo "	<result>"
 wscript.echo "		<channel>GPU Utilization</channel>"
