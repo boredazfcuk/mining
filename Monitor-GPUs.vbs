@@ -36,19 +36,24 @@ sTempFile=oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName
 '----- Read GPU UUID from registry -----
 TargetGPU=oShell.RegRead(RegKey & WScript.Arguments.Item(0))
 
+'----- Query GPU 3 times in ~10 seconds -----
 QueryGPU
 WScript.Sleep(5000)
 QueryGPU
 WScript.Sleep(5000)
 QueryGPU
 
+'----- If GPU has errored -----
 If GPUMemTotal="[Unknown Error]" Then
-	GPUMemUsed=0
+	'----- Set amount of memory used to 1KB -----
+	GPUMemUsed=1
 Else
+	'----- Convert results to Bytes from MB -----
 	GPUMemTotal=GPUMemTotal*1024*1024
 	GPUMemUsed=GPUMemUsed*1024*1024
 End If
 
+'----- Kick out XML result for PRTG Network Monitor -----
 WScript.Echo "<?xml version=""1.0"" encoding=""Windows-1252""?>"
 WScript.Echo "<PRTG>"
 WScript.Echo "	<result>"
@@ -153,6 +158,7 @@ Sub QueryGPU
 			aSensorResults(Count)=Trim(aSensorResults(Count))
 		Next
 	Loop
+	'----- Put results into individual variables, adding to previous values -----
 	GPUUtilisation=Int(GPUUtilisation)+Int(aSensorResults(0))
 	GPUTemperature=Int(GPUTemperature)+Int(aSensorResults(1))
 	GPUFanSpeed=Int(GPUFanSpeed)+Int(aSensorResults(2))
