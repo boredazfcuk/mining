@@ -6,7 +6,7 @@ Dim OutputFormat, GPUTemperature, GPUFanSpeed, GPUMemTotal, GPUMemUsed, GPUMemFr
 
 nVidiaSMI="""C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"""
 OutputFormat="--format=csv,noheader,nounits"
-RegKey="HKCU\Software\boredazfcuk\mining\GPUs\"
+RegKey="HKLM\Software\Wow6432Node\boredazfcuk\mining\GPUs\"
 
 Set oShell=CreateObject("WScript.Shell")
 Set oGPUDevices = oShell.Exec(nVidiaSMI & " -i 0 --query-gpu=count " & OutputFormat)

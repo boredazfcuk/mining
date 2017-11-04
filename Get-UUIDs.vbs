@@ -7,7 +7,7 @@ Dim nVidiaSMI, QueryUUIDs, OutputFormat, RegKey, oShell, oFSO, sTempFile, Return
 nVidiaSMI="""C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"""
 QueryUUIDs=" --query-gpu=uuid "
 OutputFormat="--format=csv,noheader,nounits"
-RegKey="HKCU\Software\boredazfcuk\mining\GPUs\"
+RegKey="HKLM\Software\WOW6432Node\boredazfcuk\mining\GPUs\"
 
 '----- Create Objects -----
 Set oShell=CreateObject("WScript.Shell")

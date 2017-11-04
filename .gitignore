@@ -4,3 +4,4 @@ Logs/Monitor-GPUsTotal.log
 Logs/Monitor-NetworkConnection.log
 Logs/Monitor-NiceHash.log
 Logs/Monitor-PowerLevels.log
+Monitor-Critical.xml
