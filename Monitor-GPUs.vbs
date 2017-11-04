@@ -1,5 +1,10 @@
 Option Explicit
 
+'
+' THIS SCRIPT IS PROVIDED "AS IS", USE AT YOUR OWN RISK!
+' https://github.com/boredazfcuk/mining
+'
+
 '----- Initialise Variables -----
 Dim oFSO, oShell, nVidiaSMI, QueryGPUCount, QueryGPUUUID, QuerySensorValues, OutputFormat, RegKey
 Dim sTempFile, TargetGPU, RunSilent, oTempFile, Count, SensorResults, aSensorResults

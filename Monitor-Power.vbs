@@ -1,6 +1,7 @@
 Option Explicit
 
 '
+' THIS SCRIPT IS PROVIDED "AS IS", USE AT YOUR OWN RISK!
 ' https://github.com/boredazfcuk/mining
 '
 
