@@ -48,7 +48,7 @@ For Count = 0 To UBound(aGPUMemoryTotal)-1
 	'----- Clean up each array element -----
 	aGPUMemoryTotal(Count) = Trim(aGPUMemoryTotal(Count))
 	'----- If the element's value contains [ and ] then -----
-	If (InStr(aGPUMemoryTotal(Count),"[") And InStr(aGPUMemoryTotal(Count),"]")) Then
+	If ((InStr(aGPUMemoryTotal(Count),"[") And InStr(aGPUMemoryTotal(Count),"]")) Or InStr(aGPUMemoryTotal(Count),"Reboot")) Then
 	'----- Go to the reboot computer sub routine -----
 		RebootComputer
 	End If
