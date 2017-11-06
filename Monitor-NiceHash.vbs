@@ -10,21 +10,40 @@ Const maxAgeSeconds=180
 Const OpenAsASCII=0 
 Const CreateIfNotExist=1
 Const ForAppending=8
+Const HKCU=&H80000001
 
 '----- Script-wide Variables -----
 Dim oFSO, oShell, CurrentFolder, LogFolder, sTempFile, sLogFile, UtilisationFailureCount, oWMI, cProcesses, Process, NHMLAge, sNiceHashCommandLine, oFile, sNiceHashFolderPath, Count, RunSilent, Miner
 '----- CheckUtilisation Variables -----
-Dim nVidiaSMI, QueryCount, QueryUtilisation, OutputFormat, Total, GPUDevices, GPUUtilisation, aGPUUtilisation, UtilisationAverage
+Dim nVidiaSMI, QueryCount, QueryUtilisation, OutputFormat, Total, GPUDevices, GPUUtilisation, aGPUUtilisation, UtilisationAverage, UtilisationThreshold
 '----- BuildMinerList Variables -----
 Dim sLine, aNames, iIndex, aMiners()
 '----- DeDupeMiners Variables -----
 Dim oDictionary, aDeDupedMiners
 '----- Restart NHML Variables -----
 Dim fLogFile
+'----- Prowl Notification Variables -----
+Dim oRegistry, KeyPath, ValueName, ProwlAPIKey, ProwlNotifications, ProwlDisable
 
 '----- Create Objects -----
 Set oFSO=CreateObject("Scripting.FileSystemObject")
 Set oShell=CreateObject("WScript.Shell")
+Set oRegistry=GetObject("winmgmts:\\.\root\default:StdRegProv")
+
+'----- Set registry key for settings -----
+KeyPath="Software\boredazfcuk\mining"
+'----- Set registry value for Prowl API Key
+ValueName="ProwlAPIKey"
+'----- Check if Prowl API Key is present in registry -----
+oRegistry.GetStringValue HKCU, KeyPath, ValueName, ProwlAPIKey
+'----- If Prowl API Key is set -----
+If Not IsNull(ProwlAPIKey) Then
+	'----- Enable Prowl Notifications -----
+	ProwlNotifications=True
+End If
+
+'----- Change line below to True to disable Prowl notifications for this script only -----
+ProwlDisable=False
 
 '----- Get Temp File -----
 sTempFile=oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName
@@ -36,8 +55,10 @@ If Not (oFSO.FolderExists(LogFolder)) Then
     '----- Create Log SubFolder-----
     oFSO.CreateFolder(LogFolder)
 End If
-sLogFile= oFSO.BuildPath(LogFolder, "\Monitor-NiceHash.log")
+sLogFile=oFSO.BuildPath(LogFolder, "\Monitor-NiceHash.log")
 
+'-----
+UtilisationThreshold=80
 UtilisationFailureCount=0
 
 Set oWMI=GetObject("winmgmts:\\localhost\root\CIMV2")
@@ -113,6 +134,10 @@ Function DeDupeMiners(aMiners)
 End Function
 
 Function RestartNHML(aDeDupedMiners)
+	'----- If Prowl Notifications are enabled -----
+	If ((ProwlNotifications) And (Not ProwlDisable))Then
+		SendProwlNotification "2","Monitor-NiceHash","GPU Utilisationbelow 80% - Restarting NiceHash"
+	End If
 	'----- Write event to Windows Application Log -----
 	oShell.LogEvent 1, "GPU Utilisation below 80% at " & Now() & " - Restarting Nice Hash."
 	Set fLogFile=oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
@@ -182,10 +207,19 @@ Sub CheckUtilisation
 	'----- Divide running total by number of array elements -----
 	UtilisationAverage=Total/UBound(aGPUUtilisation)
 	'----- If utilisation is less than 80% -----
-	If UtilisationAverage < 80 Then
+	If UtilisationAverage < UtilisationThreshold Then
 		'----- Add 1 to utilisation failure count
-		UtilisationFailureCount= UtilisationFailureCount+1
+		UtilisationFailureCount=UtilisationFailureCount+1
 	End If
+End Sub
+
+'----- Send Prowl Notification -----
+Sub SendProwlNotification(Priority, Application, Description)
+	Dim oHTTP
+	Set oHTTP=CreateObject("Microsoft.XMLHTTP")  
+	oHTTP.Open "Get", "https://prowl.weks.net/publicapi/add?" & "apikey=" & ProwlAPIKey & "&priority=" & Priority & "&application=" & Application & "&event=" & Date() & " " & Time()  & "&description=" & Description ,false  
+	oHTTP.SetRequestHeader "Content-Type", "application/x-www-form-urlencoded"  
+	oHTTP.Send  
 End Sub
 
 '----- Convert Date String to Date -----

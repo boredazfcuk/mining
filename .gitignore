@@ -5,3 +5,6 @@ Logs/Monitor-NetworkConnection.log
 Logs/Monitor-NiceHash.log
 Logs/Monitor-PowerLevels.log
 Monitor-Critical.xml
+*.log
+ProwlNotification.vbs
+ReadAPI.vbs

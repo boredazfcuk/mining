@@ -24,18 +24,18 @@ Dim SevenZip, oShell, ProfilePath, EncryptionKeyFile, BackupConfigFile, CurrentF
 Dim oFSO, sLogFile, fLogFile, fEncryptionKeyFile, fBackupConfigFile, EncryptionKey, BackupConfig
 Dim Line, BackupPath, Count, aBackupConfig, CryptoCurrency, WalletFile, BackupTarget, RunSilent
 
+'----- Set Constants -----
+Const ForAppending = 8
+Const ForReading = 1
+Const CreateIfNotExist = 1
+Const OpenAsASCII = 0
+
 '----- Set 7-zip path -----
 SevenZip="""C:\Program Files\7-Zip\7z.exe"""
 
 '----- Create Objects -----
 Set oShell = WScript.CreateObject("WScript.Shell")
 Set oFSO=CreateObject("Scripting.FileSystemObject")
-
-'----- Set Constants -----
-Const ForAppending = 8
-Const ForReading = 1
-Const CreateIfNotExist = 1
-Const OpenAsASCII = 0
 
 '----- Set Variables -----
 ProfilePath=oShell.ExpandEnvironmentStrings("%UserProfile%")

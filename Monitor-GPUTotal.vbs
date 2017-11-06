@@ -6,7 +6,9 @@ Option Explicit
 '
 
 '----- Define variables -----
-Dim nVidiaSMI, QueryTotalMem, OutputFormat, oShell, oFSO, sTempFile, CurrentFolder, LogFolder, RunSilent, oFile, oGPUMemoryTotal, GPUMemoryTotal, aGPUMemoryTotal, sLogFile, fLogFile, Count, Total
+Dim nVidiaSMI, QueryTotalMem, OutputFormat, RegKey, oShell, oFSO, oRegistry, sTempFile, KeyPath
+Dim ValueName, ProwlAPIKey, ProwlNotifications, ProwlDisable, CurrentFolder, LogFolder, RunSilent
+Dim oFile, oGPUMemoryTotal, GPUMemoryTotal, aGPUMemoryTotal, sLogFile, fLogFile, Count, Total
 
 nVidiaSMI="""C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"""
 QueryTotalMem=" --query-gpu=memory.total "
@@ -14,10 +16,23 @@ OutputFormat="--format=csv,noheader,nounits"
 
 Set oShell=CreateObject("WScript.Shell")
 Set oFSO=CreateObject("Scripting.FileSystemObject")
+Set oRegistry=GetObject("winmgmts:\\.\root\default:StdRegProv")
+
 Const ForAppending = 8
 Const CreateIfNotExist = 1
 Const OpenAsASCII = 0
+Const HKCU=&H80000001
 sTempFile=oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName
+KeyPath="Software\boredazfcuk\mining"
+ValueName="ProwlAPIKey"
+oRegistry.GetStringValue HKCU, KeyPath, ValueName, ProwlAPIKey
+	
+If Not IsNull(ProwlAPIKey) Then
+	ProwlNotifications=True
+End If
+
+'----- Change line below to True to disable Prowl notifications for this script only -----
+ProwlDisable=False
 
 '----- Get Script Folder -----
 CurrentFolder = oFSO.GetAbsolutePathName(".")
@@ -55,6 +70,9 @@ For Count = 0 To UBound(aGPUMemoryTotal)-1
 Next
 
 Sub RebootComputer
+	If ((ProwlNotifications) And (Not ProwlDisable))Then
+		SendProwlNotification "2","Monitor-GPUTotal","GPU#" & Count & " Failed - Rebooting."
+	End If
 	'----- Write event to Windows Application Log -----
 	oShell.LogEvent 1, "GPU#" & Count & " Failed at " & Now() & " - Rebooting."
 	Set fLogFile = oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
@@ -64,4 +82,12 @@ Sub RebootComputer
 	fLogFile.Close
 	'----- Reboot Computer -----
 	RunSilent=oShell.Run("%comspec% /c shutdown /f /r /t 60", , True)
+End Sub
+
+Sub SendProwlNotification(Priority, Application, Description)
+	Dim oHTTP
+	Set oHTTP=CreateObject("Microsoft.XMLHTTP")  
+	oHTTP.Open "Get", "https://prowl.weks.net/publicapi/add?" & "apikey=" & ProwlAPIKey & "&priority=" & Priority & "&application=" & Application & "&event=" & Date() & " " & Time()  & "&description=" & Description ,false  
+	oHTTP.SetRequestHeader "Content-Type", "application/x-www-form-urlencoded"  
+	oHTTP.Send  
 End Sub

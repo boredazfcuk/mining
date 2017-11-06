@@ -7,15 +7,19 @@ Option Explicit
 
 '----- Initialise Variables -----
 Dim oShell, oFSO, PowerLimit, nVidiaSMI, QueryPowerLimit, OutputFormat, sTempFile, CurrentFolder, LogFolder, Return, oFile, oGPUPowerLevels, GPUPowerLevels, aGPUPowerLevels, sLogFile, fLogFile, Count, Total
-
-'----- Create Objects -----
-Set oShell=CreateObject("WScript.Shell")
-Set oFSO=CreateObject("Scripting.FileSystemObject")
+'----- Initialise Prowl Notification Variables -----
+Dim oRegistry, KeyPath, ValueName, ProwlAPIKey, ProwlNotifications, ProwlDisable
 
 '----- Set Constants -----
 Const ForAppending = 8
 Const CreateIfNotExist = 1
 Const OpenAsASCII = 0
+Const HKCU=&H80000001
+
+'----- Create Objects -----
+Set oShell=CreateObject("WScript.Shell")
+Set oFSO=CreateObject("Scripting.FileSystemObject")
+Set oRegistry=GetObject("winmgmts:\\.\root\default:StdRegProv")
 
 '----- Set Variables -----
 PowerLimit = "120.00"
@@ -23,6 +27,16 @@ nVidiaSMI="""C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"""
 QueryPowerLimit=" --query-gpu=power.limit "
 OutputFormat="--format=csv,noheader,nounits"
 sTempFile=oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName
+KeyPath="Software\boredazfcuk\mining"
+ValueName="ProwlAPIKey"
+oRegistry.GetStringValue HKCU, KeyPath, ValueName, ProwlAPIKey, ProwlDisable
+	
+If Not IsNull(ProwlAPIKey) Then
+	ProwlNotifications=True
+End If
+
+'----- Change line below to True to disable Prowl notifications for this script only -----
+ProwlDisable=False
 
 '----- Get Script Folder -----
 CurrentFolder = oFSO.GetAbsolutePathName(".")
@@ -60,6 +74,10 @@ For Count = 0 To UBound(aGPUPowerLevels)-1
 		'----- If OK, display message -----
 		'WScript.Echo "GPU#" & i & " Power limit " & aGPUPowerLevels(i) & " good"
 	Else
+		'----- If Prowl Notifications are enabled -----
+		If ((ProwlNotifications) And (Not ProwlDisable))Then
+			SendProwlNotification "2","Monitor-PowerLevels","GPU#" & Count & " Power limit " & aGPUPowerLevels(Count) & " bad, changing to " & PowerLimit
+		End If
 		'----- If bad, write error to Windows Event Viewer Application Log -----
 		oShell.LogEvent 1, "GPU#" & Count & " Power limit " & aGPUPowerLevels(Count) & " bad, changing to " & PowerLimit & " @ " & Now()
 		'----- Target Log File -----
@@ -72,3 +90,11 @@ For Count = 0 To UBound(aGPUPowerLevels)-1
 		Return = oShell.Run("cmd /c " & nVidiaSMI & " -i " & Count & " -pl " & PowerLimit, 0, True)		
 	End If
 Next
+
+Sub SendProwlNotification(Priority, Application, Description)
+	Dim oHTTP
+	Set oHTTP=CreateObject("Microsoft.XMLHTTP")  
+	oHTTP.Open "Get", "https://prowl.weks.net/publicapi/add?" & "apikey=" & ProwlAPIKey & "&priority=" & Priority & "&application=" & Application & "&event=" & Date() & " " & Time()  & "&description=" & Description ,false  
+	oHTTP.SetRequestHeader "Content-Type", "application/x-www-form-urlencoded"  
+	oHTTP.Send  
+End Sub

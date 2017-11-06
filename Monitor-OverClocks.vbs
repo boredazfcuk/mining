@@ -6,9 +6,18 @@ Option Explicit
 '
 
 '----- Initilise Variables -----
-Dim Profile, MSIAfterburner, MSIAfterburnerRegPath, sTempFile, oWMI, oFSO, oShell, cProcesses, Process, MSIAfterburnerPath, oFile, RunSilent, UninstallString, MSIAfterburnerInstallPath
+Dim Profile, MSIAfterburner, MSIAfterburnerRegPath, sTempFile, oWMI, oFSO, oShell, cProcesses
+Dim Process, MSIAfterburnerPath, oFile, RunSilent, UninstallString, MSIAfterburnerInstallPath
+Dim CurrentFolder, LogFolder, sLogFile, fLogFile
 '----- Initialise CheckMemoryOverclocks Variables -----
 Dim nVidiaSMI, QueryMemoryOverclocks, OutputFormat, Count, MemoryOverClocks, aMemoryOverClocks
+'----- Initialise Prowl Notification Variables -----
+Dim oRegistry, KeyPath, ValueName, ProwlAPIKey, ProwlNotifications, ProwlDisable
+
+Const HKCU=&H80000001
+Const OpenAsASCII=0 
+Const CreateIfNotExist=1
+Const ForAppending=8
 
 '----- Check if launched with profile parameter
 If WScript.Arguments.Count > 0 Then
@@ -38,11 +47,32 @@ End If
 Set oWMI = GetObject("winmgmts:\\localhost\root\CIMV2")
 Set oFSO = CreateObject("Scripting.FileSystemObject")
 Set oShell = CreateObject("WScript.Shell")
+Set oRegistry=GetObject("winmgmts:\\.\root\default:StdRegProv")
+
+KeyPath="Software\boredazfcuk\mining"
+ValueName="ProwlAPIKey"
+oRegistry.GetStringValue HKCU, KeyPath, ValueName, ProwlAPIKey
+	
+If Not IsNull(ProwlAPIKey) Then
+	ProwlNotifications=True
+End If
+
+'----- Change line below to True to disable Prowl notifications for this script only -----
+ProwlDisable=False
 
 '----- Set MSI Afterburner Executable name -----
 MSIAfterburner="MSIAfterburner.exe"
 MSIAfterburnerRegPath="HKLM\SOFTWARE\WOW6432Node\MSI\Afterburner\InstallPath"
 sTempFile = oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName
+'----- Get Script Folder -----
+CurrentFolder=oFSO.GetAbsolutePathName(".")
+LogFolder=oFSO.BuildPath(CurrentFolder, "\Logs")
+'----- If Log Sub Folder doesn't exist -----
+If Not (oFSO.FolderExists(LogFolder)) Then
+    '----- Create Log SubFolder-----
+    oFSO.CreateFolder(LogFolder)
+End If
+sLogFile=oFSO.BuildPath(LogFolder, "\Monitor-Overclocks.log")
 
 CheckMemoryOverclocks
 
@@ -85,6 +115,17 @@ Sub CheckMemoryOverclocks
 End Sub
 
 Sub ReapplyProfile
+	'----- If Prowl Notifications are enabled -----
+	If ((ProwlNotifications) And (Not ProwlDisable))Then
+		SendProwlNotification "2","Monitor-Overclocks","GPU Overclocks lower than expected - Reapplying MSI Afterburner profile " & Profile
+	End If
+	'----- Write event to Windows Application Log -----
+	oShell.LogEvent 1, "GPU Overclocks lower than expected at " & Now() & " - Reapplying MSI Afterburner profile " & Profile
+	Set fLogFile=oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
+	'----- Write log to log file -----
+	fLogFile.WriteLine ("GPU Overclocks lower than expected at " & Now() & " - Reapplying MSI Afterburner profile " & Profile)
+	'----- Close log file -----
+	fLogFile.Close
 	'----- Grab MSI Afterburner Process details -----
 	Set cProcesses = oWMI.ExecQuery("SELECT * FROM Win32_Process WHERE Caption='" & MSIAfterburner & "'")
 	'----- If MSI Afterburner is running -----
@@ -108,4 +149,12 @@ Sub ReapplyProfile
 	   	'----- Quit out, rather than check the rest of the overclocks, as they should be good
 	   	WScript.Quit(0)
 	End If
+End Sub
+
+Sub SendProwlNotification(Priority, Application, Description)
+	Dim oHTTP
+	Set oHTTP=CreateObject("Microsoft.XMLHTTP")  
+	oHTTP.Open "Get", "https://prowl.weks.net/publicapi/add?" & "apikey=" & ProwlAPIKey & "&priority=" & Priority & "&application=" & Application & "&event=" & Date() & " " & Time()  & "&description=" & Description ,false  
+	oHTTP.SetRequestHeader "Content-Type", "application/x-www-form-urlencoded"  
+	oHTTP.Send  
 End Sub

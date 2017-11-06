@@ -6,9 +6,11 @@ Option Explicit
 '
 
 '----- Initialise Variables -----
-Dim oFSO, oShell, nVidiaSMI, QueryGPUCount, QueryGPUUUID, QuerySensorValues, OutputFormat, RegKey
+Dim oFSO, oShell, oRegistry, nVidiaSMI, QueryGPUCount, QueryGPUUUIDs, QuerySensorValues, OutputFormat, RegKey, KeyPath, ValueName, GPUKeyExists
 Dim sTempFile, TargetGPU, RunSilent, oTempFile, Count, SensorResults, aSensorResults
 Dim GPUUtilisation, GPUUtilisationFree, GPUTemperature, GPUFanSpeed, GPUMemTotal, GPUMemUsed, GPUPowerDraw
+
+Const HKLM = &H80000002
 
 '----- Exit if GPU Index number not supplied -----
 If WScript.Arguments.Count <> 1 Then
@@ -21,20 +23,27 @@ End If
 '----- Create Objects -----
 Set oFSO=CreateObject("Scripting.FileSystemObject")
 Set oShell=CreateObject("WScript.Shell")
+Set oRegistry=GetObject("winmgmts:\\.\root\default:StdRegProv")
 
 '----- Set Variables -----
 nVidiaSMI="""C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"""
 QueryGPUCount=" -i 0 --query-gpu=count "
-QueryGPUUUID=" --query-gpu=uuid "
+QueryGPUUUIDs=" --query-gpu=uuid "
 QuerySensorValues=" --query-gpu=utilization.gpu,temperature.gpu,fan.speed,memory.total,memory.used,power.draw "
 OutputFormat="--format=csv,noheader,nounits"
 RegKey="HKLM\Software\Wow6432Node\boredazfcuk\mining\GPUs\"
+KeyPath="Software\WOW6432Node\boredazfcuk\mining\GPUs\"
 
 '----- Get Temp File -----
 sTempFile=oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName
 
 '----- Read GPU UUID from registry -----
+oRegistry.GetStringValue HKLM, KeyPath, WScript.Arguments.Item(0), GPUKeyExists
+If IsNull (GPUKeyExists) Then
+	GetGPUUUIDs
+End If
 TargetGPU=oShell.RegRead(RegKey & WScript.Arguments.Item(0))
+
 
 '----- Query GPU 3 times in ~10 seconds -----
 QueryGPU
@@ -164,6 +173,32 @@ Sub QueryGPU
 	GPUFanSpeed=Int(GPUFanSpeed)+Int(aSensorResults(2))
 	GPUMemUsed=Int(GPUMemUsed)+Int(aSensorResults(4))
 	GPUPowerDraw=Int(GPUPowerDraw)+Int(aSensorResults(5))
+End Sub
+
+Sub GetGPUUUIDs
+	'----- Initilise variables -----
+	Dim oFile, GPUUUIDs, aGPUUUIDs, Count
+	
+	'----- Perform GPU UUID Query and push results to the temp file -----
+	RunSilent = oShell.Run("cmd /c " & nVidiaSMI & QueryGPUUUIDs & OutputFormat & " > " & sTempFile, 0, True)
+	'----- Open temp file for reading -----
+	Set oFile = oFSO.OpenTextFile(sTempFile, 1)
+	'----- Read whole file into a variable -----
+	GPUUUIDs = oFile.ReadAll
+	'----- Trim the variable to remove trailing whitespace etc -----
+	Trim(GPUUUIDs)
+	'----- Close the temp file -----
+	oFile.Close
+	'----- Delete the temp file -----
+	oFSO.DeleteFile(sTempFile)
+	
+	'----- Split the query results into an array -----
+	aGPUUUIDs=Split(GPUUUIDs,VBNewLine)
+	'----- For each variable in the array except the last, empty one -----
+	For Count = LBound(aGPUUUIDs) to UBound(aGPUUUIDs)-1
+		'----- Save to registry -----
+		oShell.RegWrite RegKey & Count, aGPUUUIDs(Count), "REG_SZ"
+	Next
 End Sub
 
 '----- Close Temp file -----
