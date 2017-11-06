@@ -8,3 +8,4 @@ Monitor-Critical.xml
 *.log
 ProwlNotification.vbs
 ReadAPI.vbs
+Monitor-Critical.xml

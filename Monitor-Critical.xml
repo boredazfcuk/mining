@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Date>2017-09-13T00:40:54.4035683</Date>
     <URI>\Monitor-Critical</URI>
   </RegistrationInfo>
   <Triggers>

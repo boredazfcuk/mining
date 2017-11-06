@@ -44,7 +44,6 @@ aVBSFiles(6)="Monitor-PRTGProbeService.vbs"
 fXMLFile.WriteLine ("<?xml version=""1.0"" encoding=""UTF-16""?>")
 fXMLFile.WriteLine ("<Task version=""1.2"" xmlns=""http://schemas.microsoft.com/windows/2004/02/mit/task"">")
 fXMLFile.WriteLine ("  <RegistrationInfo>")
-fXMLFile.WriteLine ("    <Date>2017-09-13T00:40:54.4035683</Date>")
 fXMLFile.WriteLine ("    <URI>\Monitor-Critical</URI>")
 fXMLFile.WriteLine ("  </RegistrationInfo>")
 fXMLFile.WriteLine ("  <Triggers>")
