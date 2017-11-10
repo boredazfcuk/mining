@@ -44,7 +44,6 @@ If IsNull (GPUKeyExists) Then
 End If
 TargetGPU=oShell.RegRead(RegKey & WScript.Arguments.Item(0))
 
-
 '----- Query GPU 3 times in ~10 seconds -----
 QueryGPU
 WScript.Sleep(5000)
