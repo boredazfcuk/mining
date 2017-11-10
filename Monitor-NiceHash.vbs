@@ -94,8 +94,12 @@ If NHMLAge > maxAgeSeconds Then
  		WScript.Sleep(45000)
  		'----- Check GPU Utilisation again -----
 		CheckUtilisation
+		'----- Wait 45 seconds for NiceHash to get going -----
+ 		WScript.Sleep(45000)
+ 		'----- Check GPU Utilisation again -----
+		CheckUtilisation
 		'----- If Utilisation still isn't optimal -----
-		If UtilisationFailureCount=3 Then
+		If UtilisationFailureCount=4 Then
 			'----- Reboot Computer -----
 			RebootComputer
 		End If
