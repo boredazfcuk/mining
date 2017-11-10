@@ -90,6 +90,15 @@ If NHMLAge > maxAgeSeconds Then
 		DeDupeMiners(aMiners)
 		'----- Restart NHML -----
 		RestartNHML(aDeDupedMiners)
+		'----- Wait 45 seconds for NiceHash to get going -----
+ 		WScript.Sleep(45000)
+ 		'----- Check GPU Utilisation again -----
+		CheckUtilisation
+		'----- If Utilisation still isn't optimal -----
+		If UtilisationFailureCount=3 Then
+			'----- Reboot Computer -----
+			RebootComputer
+		End If
 	End If
 End If
 
@@ -220,6 +229,23 @@ Sub SendProwlNotification(Priority, Application, Description)
 	oHTTP.Open "Get", "https://prowl.weks.net/publicapi/add?" & "apikey=" & ProwlAPIKey & "&priority=" & Priority & "&application=" & Application & "&event=" & Date() & " " & Time()  & "&description=" & Description ,false  
 	oHTTP.SetRequestHeader "Content-Type", "application/x-www-form-urlencoded"  
 	oHTTP.Send  
+End Sub
+
+'----- Reboot Computer -----
+Sub RebootComputer
+	'----- Send Prowl Notification of reboot -----
+	If ((ProwlNotifications) And (Not ProwlDisable))Then
+		SendProwlNotification "2","Monitor-NiceHash", "NiceHash Recovery Failed - Rebooting."
+	End If
+	'----- Write event to Windows Application Log -----
+	oShell.LogEvent 1, "Monitor-NiceHash Recovery Failed at " & Now() & " - Rebooting."
+	Set fLogFile = oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
+	'----- Write log to log file -----
+	fLogFile.WriteLine ("Monitor-NiceHash Recovery Failed at " & Now() & " - Rebooting.")
+	'----- Close log file -----
+	fLogFile.Close
+	'----- Reboot Computer -----
+	RunSilent=oShell.Run("%comspec% /c shutdown /f /r /t 60", , True)
 End Sub
 
 '----- Convert Date String to Date -----
