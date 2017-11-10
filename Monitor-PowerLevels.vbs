@@ -6,7 +6,7 @@ Option Explicit
 '
 
 '----- Initialise Variables -----
-Dim oShell, oFSO, PowerLimit, nVidiaSMI, QueryPowerLimit, OutputFormat, sTempFile, CurrentFolder, LogFolder, Return, oFile, oGPUPowerLevels, GPUPowerLevels, aGPUPowerLevels, sLogFile, fLogFile, Count, Total
+Dim oShell, oFSO, PowerLimit(5), nVidiaSMI, QueryPowerLimit, OutputFormat, sTempFile, CurrentFolder, LogFolder, Return, oFile, oGPUPowerLevels, GPUPowerLevels, aGPUPowerLevels, sLogFile, fLogFile, Count, Total
 '----- Initialise Prowl Notification Variables -----
 Dim oRegistry, KeyPath, ValueName, ProwlAPIKey, ProwlNotifications, ProwlDisable
 
@@ -22,7 +22,12 @@ Set oFSO=CreateObject("Scripting.FileSystemObject")
 Set oRegistry=GetObject("winmgmts:\\.\root\default:StdRegProv")
 
 '----- Set Variables -----
-PowerLimit = "120.00"
+PowerLimit(0) = "124.00"
+PowerLimit(1) = "120.00"
+PowerLimit(2) = "120.00"
+PowerLimit(3) = "124.00"
+PowerLimit(4) = "120.00"
+PowerLimit(5) = "120.00"
 nVidiaSMI="""C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"""
 QueryPowerLimit=" --query-gpu=power.limit "
 OutputFormat="--format=csv,noheader,nounits"
@@ -70,24 +75,24 @@ For Count = 0 To UBound(aGPUPowerLevels)-1
 	'----- Clean up element's value -----
 	aGPUPowerLevels(Count) = Trim(aGPUPowerLevels(Count))
 	'----- Check power level -----
-	If aGPUPowerLevels(Count) = PowerLimit Then
+	If aGPUPowerLevels(Count) = PowerLimit(Count) Then
 		'----- If OK, display message -----
 		'WScript.Echo "GPU#" & i & " Power limit " & aGPUPowerLevels(i) & " good"
 	Else
 		'----- If Prowl Notifications are enabled -----
 		If ((ProwlNotifications) And (Not ProwlDisable))Then
-			SendProwlNotification "2","Monitor-PowerLevels","GPU#" & Count & " Power limit " & aGPUPowerLevels(Count) & " bad, changing to " & PowerLimit
+			SendProwlNotification "2","Monitor-PowerLevels","GPU#" & Count & " Power limit " & aGPUPowerLevels(Count) & " bad, changing to " & PowerLimit(Count)
 		End If
 		'----- If bad, write error to Windows Event Viewer Application Log -----
-		oShell.LogEvent 1, "GPU#" & Count & " Power limit " & aGPUPowerLevels(Count) & " bad, changing to " & PowerLimit & " @ " & Now()
+		oShell.LogEvent 1, "GPU#" & Count & " Power limit " & aGPUPowerLevels(Count) & " bad, changing to " & PowerLimit(Count) & " @ " & Now()
 		'----- Target Log File -----
 		Set fLogFile = oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
 		'----- Write error message to log file -----
-		fLogFile.WriteLine ("GPU#" & Count & " Power limit " & aGPUPowerLevels(Count) & " bad, changing to " & PowerLimit & " @ " & Now())
+		fLogFile.WriteLine ("GPU#" & Count & " Power limit " & aGPUPowerLevels(Count) & " bad, changing to " & PowerLimit(Count) & " @ " & Now())
 		'----- Close log file -----
 		fLogFile.Close
 		'----- Set Power Limit to value stored in PowerLimit Variable -----
-		Return = oShell.Run("cmd /c " & nVidiaSMI & " -i " & Count & " -pl " & PowerLimit, 0, True)		
+		Return = oShell.Run("cmd /c " & nVidiaSMI & " -i " & Count & " -pl " & PowerLimit(Count), 0, True)		
 	End If
 Next
 
