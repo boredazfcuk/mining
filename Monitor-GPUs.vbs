@@ -44,11 +44,13 @@ If IsNull (GPUKeyExists) Then
 End If
 TargetGPU=oShell.RegRead(RegKey & WScript.Arguments.Item(0))
 
-'----- Query GPU 3 times in ~10 seconds -----
+'----- Query GPU 4 times in ~45 seconds -----
 QueryGPU
-WScript.Sleep(5000)
+WScript.Sleep(15000)
 QueryGPU
-WScript.Sleep(5000)
+WScript.Sleep(15000)
+QueryGPU
+WScript.Sleep(15000)
 QueryGPU
 
 '----- If GPU has errored -----
@@ -70,7 +72,7 @@ WScript.Echo "		<unit>Percentage</unit>"
 WScript.Echo "		<mode>Absolute</mode>"
 WScript.Echo "		<showChart>1</showChart>"
 WScript.Echo "		<showTable>1</showTable>"
-WScript.Echo "		<value>" & Round(GPUUtilisation/3) & "</value>"
+WScript.Echo "		<value>" & Round(GPUUtilisation/4) & "</value>"
 WScript.Echo "		<warning>0</warning>"
 WScript.Echo "		<float>0</float>"
 WScript.Echo "		<LimitMinError>70</LimitMinError>"
@@ -86,7 +88,7 @@ WScript.Echo "		<mode>Absolute</mode>"
 WScript.Echo "		<showChart>1</showChart>"
 WScript.Echo "		<showTable>1</showTable>"
 WScript.Echo "		<warning>0</warning>"
-WScript.Echo "		<value>" & Round(GPUTemperature/3) & "</value>"
+WScript.Echo "		<value>" & Round(GPUTemperature/4) & "</value>"
 WScript.Echo "		<float>0</float>"
 WScript.Echo "		<LimitMaxError>90</LimitMaxError>"
 WScript.Echo "		<LimitMaxWarning>70</LimitMaxWarning>"
@@ -100,7 +102,7 @@ WScript.Echo "		<unit>Percentage</unit>"
 WScript.Echo "		<mode>Absolute</mode>"
 WScript.Echo "		<showChart>1</showChart>"
 WScript.Echo "		<showTable>1</showTable>"
-WScript.Echo "		<value>" & Round(GPUFanSpeed/3) & "</value>"
+WScript.Echo "		<value>" & Round(GPUFanSpeed/4) & "</value>"
 WScript.Echo "		<warning>0</warning>"
 WScript.Echo "		<float>0</float>"
 WScript.Echo "		<LimitMode>0</LimitMode>"
@@ -112,7 +114,7 @@ WScript.Echo "		<mode>Absolute</mode>"
 WScript.Echo "		<showChart>1</showChart>"
 WScript.Echo "		<showTable>1</showTable>"
 WScript.Echo "		<warning>0</warning>"
-WScript.Echo "		<value>" & Round(GPUPowerDraw/3) & "</value>"
+WScript.Echo "		<value>" & Round(GPUPowerDraw/4) & "</value>"
 WScript.Echo "		<float>1</float>"
 WScript.Echo "		<LimitMaxError>125</LimitMaxError>"
 WScript.Echo "		<LimitMinError>60</LimitMinError>"
@@ -125,7 +127,7 @@ WScript.Echo "		<unit>BytesMemory</unit>"
 WScript.Echo "		<mode>Absolute</mode>"
 WScript.Echo "		<showChart>1</showChart>"
 WScript.Echo "		<showTable>1</showTable>"
-WScript.Echo "		<value>" & Round(GPUMemUsed/3) & "</value>"
+WScript.Echo "		<value>" & Round(GPUMemUsed/4) & "</value>"
 WScript.Echo "		<warning>0</warning>"
 WScript.Echo "		<float>0</float>"
 WScript.Echo "		<LimitMinError>" & 1024*1024*128 & "</LimitMinError>"
