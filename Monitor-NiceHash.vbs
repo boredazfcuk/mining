@@ -102,6 +102,20 @@ If NHMLAge > maxAgeSeconds Then
 		If UtilisationFailureCount=4 Then
 			'----- Reboot Computer -----
 			RebootComputer
+		'----- If Utilisation is back to normal -----
+		Else
+			'----- If Prowl Notifications are enabled -----
+			If ((ProwlNotifications) And (Not ProwlDisable))Then
+				'----- Send Prowl success notification -----
+				SendProwlNotification "0","Monitor-NiceHash","GPU Utilisation over 80% - NiceHash Restart Successful."
+			End If
+			'----- Write event to Windows Application Log -----
+			oShell.LogEvent 1, "GPU Utilisation over 80% at " & Now() & " - NiceHash Restart Successful"
+			Set fLogFile=oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
+			'----- Write log to log file -----
+			fLogFile.WriteLine ("GPU Utilisation over 80% at " & Now() & " - NiceHash Restart Successful.")
+			'----- Close log file -----
+			fLogFile.Close
 		End If
 	End If
 End If
@@ -149,7 +163,7 @@ End Function
 Function RestartNHML(aDeDupedMiners)
 	'----- If Prowl Notifications are enabled -----
 	If ((ProwlNotifications) And (Not ProwlDisable))Then
-		SendProwlNotification "2","Monitor-NiceHash","GPU Utilisationbelow 80% - Restarting NiceHash"
+		SendProwlNotification "2","Monitor-NiceHash","GPU Utilisation below 80% - Restarting NiceHash"
 	End If
 	'----- Write event to Windows Application Log -----
 	oShell.LogEvent 1, "GPU Utilisation below 80% at " & Now() & " - Restarting Nice Hash."
