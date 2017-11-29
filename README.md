@@ -21,11 +21,15 @@ The scripts are:
 
 8) Monitor-PRTGProbeService.vbs - The PRTG Network Monitor Probe service on my machine has a habit of not starting up after a reboot. This just checks it's running, and starts it up if it isn't.
 
-09) Generate-TaskSchedulerXML.vbs - This VBS has replaces the XML export. It automatically creates the XML file for the Tash Scheduler and imports it to the task scheduler too. Just reboot your machine after you've run this for all the scripts o activate.
+9) Generate-TaskSchedulerXML.vbs - This VBS has replaced the XML export. It automatically creates the XML file for the Tash Scheduler and imports it to the task scheduler too. Just reboot your machine after you've run this for all the scripts o activate.
 
 10) Monitor-OverClocks.vbs - This checks the current GPU Memory Overclocks and if they are less than the GPU's max overclocks, re-applies an MSI Afterburner profile. If the script is run without a parameter, it will assume profile 1. If you want to apply a different profile, pass the profile number as a parameter (will only accept 1-5) eg wscript.exe Monitor-Overclocks.vbs 3
 
 11) Initialise-ProwlNotifications - Run this script to add your Prowl API key into registry. Prowl Push Notifications will then be sent by the following scripts: Monitor-NiceHash.vbs, Monitor-GPUTotal.vbs, Monitor-Power.vbs, Monitor-PowerLevels.vbs and Monitor-Overclocks.vbs
+
+12) Generate-TaskSchedulerPreFlightChecksXML.vbs - This script generates an XML file to be imported into the task scheduler. It will run the Monitor-PreFlightChecks.vbs script on start up
+
+13) Monitor-PreFlightChecks.vbs - This file runs once at start up and sents a Prowl notification to inform you your machine has booted up (in case it blue screens and auto restarts)
 
 These scripts are a bit rough at the moment. I might get around to polishing them up a bit more if I get time, or if I come across new errors that need fixing, or find a better way of doing things.
 
