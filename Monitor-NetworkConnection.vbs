@@ -1,6 +1,7 @@
 Option Explicit
 
 '
+' THIS SCRIPT IS PROVIDED "AS IS", USE AT YOUR OWN RISK!
 ' https://github.com/boredazfcuk/mining
 '
 
@@ -68,7 +69,7 @@ Else
 	End If
 End If
 
-'----- Function to ping the default gateway address -----
+'----- Function to ping the passed IP Addres -----
 Function IsAlive(sHost) 
     Dim sTempFile, fFile  
     '----- Get a name for the Temp file -----
