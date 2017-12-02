@@ -4,9 +4,9 @@
     <URI>\Monitor-PreFlightChecks</URI>
   </RegistrationInfo>
   <Triggers>
-    <BootTrigger>
+    <LogonTrigger>
       <Enabled>true</Enabled>
-    </BootTrigger>
+    </LogonTrigger>
   </Triggers>
   <Principals>
     <Principal id="Author">
