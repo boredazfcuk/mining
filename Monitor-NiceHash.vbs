@@ -10,7 +10,9 @@ Const maxAgeSeconds=180
 Const OpenAsASCII=0 
 Const CreateIfNotExist=1
 Const ForAppending=8
+Const ForReading=1
 Const HKCU=&H80000001
+Const GoogleDNS="8.8.8.8"
 
 '----- Script-wide Variables -----
 Dim oFSO, oShell, CurrentFolder, LogFolder, sTempFile, sLogFile, UtilisationFailureCount, oWMI, cProcesses, Process, NHMLAge, sNiceHashCommandLine, oFile, sNiceHashFolderPath, Count, RunSilent, Miner
@@ -57,7 +59,7 @@ If Not (oFSO.FolderExists(LogFolder)) Then
 End If
 sLogFile=oFSO.BuildPath(LogFolder, "\Monitor-NiceHash.log")
 
-'-----
+'----- Set Utilisation Check Variables -----
 UtilisationThreshold=80
 UtilisationFailureCount=0
 
@@ -111,7 +113,6 @@ If NHMLAge > maxAgeSeconds Then
 			End If
 			'----- Write event to Windows Application Log -----
 			oShell.LogEvent 1, "GPU Utilisation over 80% at " & Now() & " - NiceHash Restart Successful"
-			Set fLogFile=oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
 			'----- Write log to log file -----
 			fLogFile.WriteLine ("GPU Utilisation over 80% at " & Now() & " - NiceHash Restart Successful.")
 			'----- Close log file -----
@@ -167,11 +168,8 @@ Function RestartNHML(aDeDupedMiners)
 	End If
 	'----- Write event to Windows Application Log -----
 	oShell.LogEvent 1, "GPU Utilisation below 80% at " & Now() & " - Restarting Nice Hash."
-	Set fLogFile=oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
 	'----- Write log to log file -----
 	fLogFile.WriteLine ("GPU Utilisation below 80% at " & Now() & " - Restarting Nice Hash.")
-	'----- Close log file -----
-	fLogFile.Close
 	'----- Kill NiceHashMinerLegacy -----
 	For Each Process In cProcesses
 			Process.Terminate()
@@ -221,7 +219,6 @@ Sub CheckUtilisation
 	oFile.Close
 	'----- Delete Temp file -----
 	oFSO.DeleteFile(sTempFile)
-	
 	'----- Split Utilisation results into array by line -----
 	aGPUUtilisation=Split(GPUUtilisation,vbCrLf)
 	'----- For each array element -----
@@ -242,11 +239,25 @@ End Sub
 
 '----- Send Prowl Notification -----
 Sub SendProwlNotification(Priority, Application, Description)
-	Dim oHTTP
-	Set oHTTP=CreateObject("Microsoft.XMLHTTP")  
-	oHTTP.Open "Get", "https://prowl.weks.net/publicapi/add?" & "apikey=" & ProwlAPIKey & "&priority=" & Priority & "&application=" & Application & "&event=" & Date() & " " & Time()  & "&description=" & Description ,false  
-	oHTTP.SetRequestHeader "Content-Type", "application/x-www-form-urlencoded"  
-	oHTTP.Send  
+	'-----Initialise Log File -----
+	Set fLogFile=oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
+	'----- Write event to Windows Application Log -----
+	oShell.LogEvent 1, "Internet Connection Check at " & Now()
+	'----- Write to Log File -----
+	fLogFile.WriteLine ("Internet Connection Check at " & Now())
+	'----- Check Internet is working to prevent error -----
+	If IsAlive(GoogleDNS) Then
+		'----- Write log to log file -----
+		fLogFile.WriteLine ("Internet Connection Check at " & Now() & " - Google Responding")
+		Dim oHTTP
+		Set oHTTP=CreateObject("Microsoft.XMLHTTP")  
+		oHTTP.Open "Get", "https://prowl.weks.net/publicapi/add?" & "apikey=" & ProwlAPIKey & "&priority=" & Priority & "&application=" & Application & "&event=" & Date() & " " & Time()  & "&description=" & Description ,false  
+		oHTTP.SetRequestHeader "Content-Type", "application/x-www-form-urlencoded"  
+		oHTTP.Send  
+	Else
+		'----- Write log to log file -----
+		fLogFile.WriteLine ("Internet Connection Check at " & Now() & " FAILED! - No notofication sent")
+	End If
 End Sub
 
 '----- Reboot Computer -----
@@ -257,7 +268,6 @@ Sub RebootComputer
 	End If
 	'----- Write event to Windows Application Log -----
 	oShell.LogEvent 1, "Monitor-NiceHash Recovery Failed at " & Now() & " - Rebooting."
-	Set fLogFile = oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
 	'----- Write log to log file -----
 	fLogFile.WriteLine ("Monitor-NiceHash Recovery Failed at " & Now() & " - Rebooting.")
 	'----- Close log file -----
@@ -271,4 +281,28 @@ Function WMIDateStringToDate(dtmDate)
      WMIDateStringToDate=CDate(Mid(dtmDate, 7, 2) & "/" & _
      Mid(dtmDate, 5, 2) & "/" & Left(dtmDate, 4) _
      & " " & Mid (dtmDate, 9, 2) & ":" & Mid(dtmDate, 11, 2) & ":" & Mid(dtmDate,13, 2))
+End Function
+
+'----- Ping the Passed IP address -----
+Function IsAlive(sHost) 
+    Dim sPingTempFile, fPingFile  
+    '----- Get a name for the Temp file -----
+    sPingTempFile = oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName 
+    '----- Run the ping command and log the results to a Temp file -----
+    oShell.Run "%comspec% /c ping.exe " & sHost & ">" & sPingTempFile, 0 , True 
+    '----- Prepare to write to the log file -----
+    Set fPingFile = oFSO.OpenTextFile(sPingTempFile, ForReading, CreateIfNotExist, OpenAsASCII) 
+    '----- Check to see if there was a reply -----
+    Select Case InStr(fPingFile.ReadAll, "TTL=")
+    	'----- If not alive, set flag -----
+         Case 0
+            IsAlive = False 
+        '----- If is alive, set flag -----
+         Case Else
+            IsAlive = True 
+    End Select
+    '----- Close text file -----
+    fPingFile.Close
+    '----- Delete Temp file -----
+    oFSO.DeleteFile(sPingTempFile)
 End Function
