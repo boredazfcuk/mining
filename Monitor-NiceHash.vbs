@@ -9,6 +9,7 @@ Const NHML="NiceHashMinerLegacy.exe"
 Const maxAgeSeconds=180
 Const OpenAsASCII=0 
 Const CreateIfNotExist=1
+Const FailIfNotExist=0
 Const ForAppending=8
 Const ForReading=1
 Const HKCU=&H80000001
@@ -58,6 +59,8 @@ If Not (oFSO.FolderExists(LogFolder)) Then
     oFSO.CreateFolder(LogFolder)
 End If
 sLogFile=oFSO.BuildPath(LogFolder, "\Monitor-NiceHash.log")
+'-----Initialise Log File -----
+Set fLogFile=oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
 
 '----- Set Utilisation Check Variables -----
 UtilisationThreshold=80
@@ -239,8 +242,6 @@ End Sub
 
 '----- Send Prowl Notification -----
 Sub SendProwlNotification(Priority, Application, Description)
-	'-----Initialise Log File -----
-	Set fLogFile=oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
 	'----- Write event to Windows Application Log -----
 	oShell.LogEvent 1, "Internet Connection Check at " & Now()
 	'----- Write to Log File -----
@@ -291,7 +292,7 @@ Function IsAlive(sHost)
     '----- Run the ping command and log the results to a Temp file -----
     oShell.Run "%comspec% /c ping.exe " & sHost & ">" & sPingTempFile, 0 , True 
     '----- Prepare to write to the log file -----
-    Set fPingFile = oFSO.OpenTextFile(sPingTempFile, ForReading, CreateIfNotExist, OpenAsASCII) 
+    Set fPingFile = oFSO.OpenTextFile(sPingTempFile, ForReading, FailIfNotExist, OpenAsASCII) 
     '----- Check to see if there was a reply -----
     Select Case InStr(fPingFile.ReadAll, "TTL=")
     	'----- If not alive, set flag -----
