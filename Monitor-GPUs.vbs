@@ -44,13 +44,13 @@ If IsNull (GPUKeyExists) Then
 End If
 TargetGPU=oShell.RegRead(RegKey & WScript.Arguments.Item(0))
 
-'----- Query GPU 4 times in ~45 seconds -----
+'----- Query GPU 4 times in 1.5mins seconds -----
 QueryGPU
-WScript.Sleep(15000)
+WScript.Sleep(30000)
 QueryGPU
-WScript.Sleep(15000)
+WScript.Sleep(30000)
 QueryGPU
-WScript.Sleep(15000)
+WScript.Sleep(30000)
 QueryGPU
 
 '----- If GPU has errored -----
@@ -75,8 +75,8 @@ WScript.Echo "		<showTable>1</showTable>"
 WScript.Echo "		<value>" & Round(GPUUtilisation/4) & "</value>"
 WScript.Echo "		<warning>0</warning>"
 WScript.Echo "		<float>0</float>"
-WScript.Echo "		<LimitMinError>70</LimitMinError>"
-WScript.Echo "		<LimitMinWarning>80</LimitMinWarning>"
+WScript.Echo "		<LimitMinError>10</LimitMinError>"
+WScript.Echo "		<LimitMinWarning>60</LimitMinWarning>"
 WScript.Echo "		<LimitWarningMsg>Mining Performance Impacted</LimitWarningMsg>"
 WScript.Echo "		<LimitErrorMsg>Mining Failure</LimitErrorMsg>"
 WScript.Echo "		<LimitMode>1</LimitMode>"
@@ -117,7 +117,7 @@ WScript.Echo "		<warning>0</warning>"
 WScript.Echo "		<value>" & Round(GPUPowerDraw/4) & "</value>"
 WScript.Echo "		<float>1</float>"
 WScript.Echo "		<LimitMaxError>125</LimitMaxError>"
-WScript.Echo "		<LimitMinError>60</LimitMinError>"
+WScript.Echo "		<LimitMinError>30</LimitMinError>"
 WScript.Echo "		<LimitErrorMsg>Undervolt Error</LimitErrorMsg>"
 WScript.Echo "		<LimitMode>1</LimitMode>"
 WScript.Echo "	</result>"
@@ -130,10 +130,10 @@ WScript.Echo "		<showTable>1</showTable>"
 WScript.Echo "		<value>" & Round(GPUMemUsed/4) & "</value>"
 WScript.Echo "		<warning>0</warning>"
 WScript.Echo "		<float>0</float>"
-WScript.Echo "		<LimitMinError>" & 1024*1024*128 & "</LimitMinError>"
+'WScript.Echo "		<LimitMinError>" & 1024*1024*128 & "</LimitMinError>"
 WScript.Echo "		<LimitMinWarning>" & 1024*1024*256 & "</LimitMinWarning>"
 WScript.Echo "		<LimitWarningMsg>Memory Low</LimitWarningMsg>"
-WScript.Echo "		<LimitErrorMsg>Memory Critical</LimitErrorMsg>"
+'WScript.Echo "		<LimitErrorMsg>Memory Critical</LimitErrorMsg>"
 WScript.Echo "		<LimitMode>1</LimitMode>"
 WScript.Echo "	</result>"
 WScript.Echo "	<result>"
