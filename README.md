@@ -31,6 +31,8 @@ The scripts are:
 
 13) Monitor-PreFlightChecks.vbs - This file runs once at start up and sents a Prowl notification to inform you your machine has booted up (in case it blue screens and auto restarts)
 
+14) Monitor-AwesomeMiner.vbs - After the NiceHash hack I moved to MiningPoolHub and AwesomeMiner. This script is a copy of Monitor-NiceHash.vbs but changed to work with AwesomeMiner
+
 These scripts are a bit rough at the moment. I might get around to polishing them up a bit more if I get time, or if I come across new errors that need fixing, or find a better way of doing things.
 
 If you want to buy me a beer for my troubles and out of the money you make from having a higer mining uptime, then my BTC address is: 1E8kUsm3qouXdVYvLMjLbw7rXNmN2jZesL
