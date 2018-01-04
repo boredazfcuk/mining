@@ -20,8 +20,8 @@ Option Explicit
 '-----
 
 '----- Initialise Variables -----
-Dim SevenZip, oShell, ProfilePath, EncryptionKeyFile, BackupConfigFile, CurrentFolder, LogFolder
-Dim oFSO, sLogFile, fLogFile, fEncryptionKeyFile, fBackupConfigFile, EncryptionKey, BackupConfig
+Dim SevenZip, oShell, ProfilePath, EncryptionKeyFile, BackupConfigFile, sScriptName, ScriptFolder, LogFolder
+Dim oFSO, oFile, sLogFile, fLogFile, fEncryptionKeyFile, fBackupConfigFile, EncryptionKey, BackupConfig
 Dim Line, BackupPath, Count, aBackupConfig, CryptoCurrency, WalletFile, BackupTarget, RunSilent
 
 '----- Set Constants -----
@@ -42,9 +42,13 @@ ProfilePath=oShell.ExpandEnvironmentStrings("%UserProfile%")
 EncryptionKeyFile=ProfilePath & "\EncryptionKey.txt"
 BackupConfigFile=ProfilePath & "\BackupConfig.csv"
 
+'----- Get Script Name -----
+sScriptName=WScript.ScriptFullName
 '----- Get Script Folder -----
-CurrentFolder = oFSO.GetAbsolutePathName(".")
-LogFolder = oFSO.BuildPath(CurrentFolder, "\Logs")
+Set oFile = oFSO.GetFile(sScriptName)
+ScriptFolder=oFSO.GetParentFolderName(oFile)
+'----- Set Log Folder Location -----
+LogFolder=oFSO.BuildPath(ScriptFolder, "\Logs")
 '----- If Log Sub Folder doesn't exist -----
 If Not (oFSO.FolderExists(LogFolder)) Then
     '----- Create Log SubFolder-----

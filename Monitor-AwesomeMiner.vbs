@@ -14,9 +14,10 @@ Const ForAppending=8
 Const ForReading=1
 Const HKCU=&H80000001
 Const GoogleDNS="8.8.8.8"
+Const Debugging=True
 
 '----- Script-wide Variables -----
-Dim oFSO, oShell, CurrentFolder, LogFolder, sTempFile, sLogFile, UtilisationFailureCount, oWMI, cProcesses, Process, AwesomeMinerAge, sAwesomeMinerCommandLine, oFile, sAwesomeMinerFolderPath, Count, RunSilent, Miner
+Dim oFSO, oShell, ScriptFolder, LogFolder, sScriptName, sTempFile, sLogFile, UtilisationFailureCount, oWMI, cProcesses, Process, AwesomeMinerAge, sAwesomeMinerCommandLine, oFile, sAwesomeMinerFolderPath, Count, RunSilent, Miner
 '----- CheckUtilisation Variables -----
 Dim nVidiaSMI, QueryCount, QueryUtilisation, OutputFormat, Total, GPUDevices, GPUUtilisation, aGPUUtilisation, UtilisationAverage, UtilisationThreshold
 '----- BuildMinerList Variables -----
@@ -50,9 +51,13 @@ ProwlDisable=False
 
 '----- Get Temp File -----
 sTempFile=oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName
+'----- Get Script Name -----
+sScriptName=WScript.ScriptFullName
 '----- Get Script Folder -----
-CurrentFolder=oFSO.GetAbsolutePathName(".")
-LogFolder=oFSO.BuildPath(CurrentFolder, "\Logs")
+Set oFile = oFSO.GetFile(sScriptName)
+ScriptFolder=oFSO.GetParentFolderName(oFile)
+'----- Set Log Folder Location -----
+LogFolder=oFSO.BuildPath(ScriptFolder, "\Logs")
 '----- If Log Sub Folder doesn't exist -----
 If Not (oFSO.FolderExists(LogFolder)) Then
     '----- Create Log SubFolder-----
@@ -63,7 +68,7 @@ sLogFile=oFSO.BuildPath(LogFolder, "\Monitor-AwesomeMiner.log")
 Set fLogFile=oFSO.OpenTextFile(sLogFile, ForAppending, CreateIfNotExist, OpenAsASCII)
 
 '----- Set Utilisation Check Variables -----
-UtilisationThreshold=60
+UtilisationThreshold=50
 UtilisationFailureCount=0
 
 Set oWMI=GetObject("winmgmts:\\localhost\root\CIMV2")
@@ -112,12 +117,12 @@ If AwesomeMinerAge > maxAgeSeconds Then
 			'----- If Prowl Notifications are enabled -----
 			If ((ProwlNotifications) And (Not ProwlDisable))Then
 				'----- Send Prowl success notification -----
-				SendProwlNotification "0","Monitor-AwesomeMiner","GPU Utilisation over 60% - AwesomeMiner Restart Successful."
+				SendProwlNotification "0","Monitor-AwesomeMiner","GPU Utilisation over 50% - AwesomeMiner Restart Successful."
 			End If
 			'----- Write event to Windows Application Log -----
-			oShell.LogEvent 1, "GPU Utilisation over 60% at " & Now() & " - AwesomeMiner Restart Successful"
+			oShell.LogEvent 1, "GPU Utilisation over 50% at " & Now() & " - AwesomeMiner Restart Successful"
 			'----- Write log to log file -----
-			fLogFile.WriteLine ("GPU Utilisation over 60% at " & Now() & " - AwesomeMiner Restart Successful.")
+			fLogFile.WriteLine ("GPU Utilisation over 50% at " & Now() & " - AwesomeMiner Restart Successful.")
 			'----- Close log file -----
 			fLogFile.Close
 		End If
@@ -166,12 +171,12 @@ End Function
 Function RestartAwesomeMiner(aDeDupedMiners)
 	'----- If Prowl Notifications are enabled -----
 	If ((ProwlNotifications) And (Not ProwlDisable))Then
-		SendProwlNotification "2","Monitor-AwesomeMiner","GPU Utilisation below 60% - Restarting AwesomeMiner"
+		SendProwlNotification "2","Monitor-AwesomeMiner","GPU Utilisation below 50% - Restarting AwesomeMiner"
 	End If
 	'----- Write event to Windows Application Log -----
-	oShell.LogEvent 1, "GPU Utilisation below 60% at " & Now() & " - Restarting Nice Hash."
+	oShell.LogEvent 1, "GPU Utilisation below 50% at " & Now() & " - Restarting AwesomeMiner."
 	'----- Write log to log file -----
-	fLogFile.WriteLine ("GPU Utilisation below 60% at " & Now() & " - Restarting Nice Hash.")
+	fLogFile.WriteLine ("GPU Utilisation below 50% at " & Now() & " - Restarting AwesomeMiner.")
 	'----- Kill AwesomeMinerMinerLegacy -----
 	For Each Process In cProcesses
 			Process.Terminate()
@@ -216,7 +221,7 @@ Sub CheckUtilisation
 	'----- Read results for all GPUs into a variable -----
 	GPUUtilisation=oFile.ReadAll
 	'----- Clean up results -----
-	Trim(GPUDevices)
+	Trim(GPUUtilisation)
 	'----- Close Temp file -----
 	oFile.Close
 	'----- Delete Temp file -----
@@ -232,21 +237,29 @@ Sub CheckUtilisation
 	Next
 	'----- Divide running total by number of array elements -----
 	UtilisationAverage=Total/UBound(aGPUUtilisation)
+	UtilisationAverage=Round(UtilisationAverage)
 	'----- If utilisation is less than 60% -----
 	If UtilisationAverage < UtilisationThreshold Then
 		'----- Add 1 to utilisation failure count
 		UtilisationFailureCount=UtilisationFailureCount+1
+	End If
+	If Debugging Then 
+		'----- Write log to log file -----
+		fLogFile.WriteLine ("GPU Utilisation at " & Now() & ":")
+		fLogFile.WriteLine (GPUUtilisation & "Utilisation Average: " & UtilisationAverage)
 	End If
 End Sub
 
 '----- Send Prowl Notification -----
 Sub SendProwlNotification(Priority, Application, Description)
 	'----- Write event to Windows Application Log -----
-	oShell.LogEvent 1, "Internet Connection Check at " & Now()
+	oShell.LogEvent 4, "Internet Connection Check at " & Now()
 	'----- Write to Log File -----
 	fLogFile.WriteLine ("Internet Connection Check at " & Now())
 	'----- Check Internet is working to prevent error -----
 	If IsAlive(GoogleDNS) Then
+		'----- Write event to Windows Application Log -----
+		oShell.LogEvent 0, "Internet Connection Check at " & Now() & " - Google Responding"
 		'----- Write log to log file -----
 		fLogFile.WriteLine ("Internet Connection Check at " & Now() & " - Google Responding")
 		Dim oHTTP
@@ -255,8 +268,10 @@ Sub SendProwlNotification(Priority, Application, Description)
 		oHTTP.SetRequestHeader "Content-Type", "application/x-www-form-urlencoded"  
 		oHTTP.Send  
 	Else
+		'----- Write event to Windows Application Log -----
+		oShell.LogEvent 4, "Internet Connection Check at " & Now() & " FAILED! - No notification sent"
 		'----- Write log to log file -----
-		fLogFile.WriteLine ("Internet Connection Check at " & Now() & " FAILED! - No notofication sent")
+		fLogFile.WriteLine ("Internet Connection Check at " & Now() & " FAILED! - No notification sent")
 	End If
 End Sub
 

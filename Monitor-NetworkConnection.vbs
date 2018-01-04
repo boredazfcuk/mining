@@ -6,7 +6,7 @@ Option Explicit
 '
 
 '----- Create Variables -----
-Dim oShell, oFSO, CurrentFolder, LogFolder, sLogFile, oWMI, cGateways, Gateway, DefaultGateway, PingAttempts
+Dim oShell, oFSO, oFile, sScriptName, ScriptFolder, LogFolder, sLogFile, oWMI, cGateways, Gateway, DefaultGateway, PingAttempts
 
 '----- Create Objects -----
 Set oShell=CreateObject("WScript.Shell")
@@ -20,9 +20,13 @@ Const CreateIfNotExist = 1
 Const ForReading =  1
 Const ForAppending = 8
 
+'----- Get Script Name -----
+sScriptName=WScript.ScriptFullName
 '----- Get Script Folder -----
-CurrentFolder = oFSO.GetAbsolutePathName(".")
-LogFolder = oFSO.BuildPath(CurrentFolder, "\Logs")
+Set oFile = oFSO.GetFile(sScriptName)
+ScriptFolder=oFSO.GetParentFolderName(oFile)
+'----- Set Log Folder Location -----
+LogFolder=oFSO.BuildPath(ScriptFolder, "\Logs")
 '----- If Log Sub Folder doesn't exist -----
 If Not (oFSO.FolderExists(LogFolder)) Then
     '----- Create Log SubFolder-----

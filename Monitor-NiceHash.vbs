@@ -16,7 +16,7 @@ Const HKCU=&H80000001
 Const GoogleDNS="8.8.8.8"
 
 '----- Script-wide Variables -----
-Dim oFSO, oShell, CurrentFolder, LogFolder, sTempFile, sLogFile, UtilisationFailureCount, oWMI, cProcesses, Process, NHMLAge, sNiceHashCommandLine, oFile, sNiceHashFolderPath, Count, RunSilent, Miner
+Dim oFSO, oShell, sScriptName, ScriptFolder, LogFolder, sTempFile, sLogFile, UtilisationFailureCount, oWMI, cProcesses, Process, NHMLAge, sNiceHashCommandLine, oFile, sNiceHashFolderPath, Count, RunSilent, Miner
 '----- CheckUtilisation Variables -----
 Dim nVidiaSMI, QueryCount, QueryUtilisation, OutputFormat, Total, GPUDevices, GPUUtilisation, aGPUUtilisation, UtilisationAverage, UtilisationThreshold
 '----- BuildMinerList Variables -----
@@ -50,9 +50,13 @@ ProwlDisable=False
 
 '----- Get Temp File -----
 sTempFile=oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName
+'----- Get Script Name -----
+sScriptName=WScript.ScriptFullName
 '----- Get Script Folder -----
-CurrentFolder=oFSO.GetAbsolutePathName(".")
-LogFolder=oFSO.BuildPath(CurrentFolder, "\Logs")
+Set oFile = oFSO.GetFile(sScriptName)
+ScriptFolder=oFSO.GetParentFolderName(oFile)
+'----- Set Log Folder Location -----
+LogFolder=oFSO.BuildPath(ScriptFolder, "\Logs")
 '----- If Log Sub Folder doesn't exist -----
 If Not (oFSO.FolderExists(LogFolder)) Then
     '----- Create Log SubFolder-----

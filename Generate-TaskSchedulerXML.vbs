@@ -6,7 +6,7 @@ Option Explicit
 '
 
 '----- Initialise Variables -----
-Dim oFSO, CurrentFolder, sXMLFile, fXMLFile, aVBSFiles(6), VBSFile, Count, oShell, RunSilent
+Dim oFSO, oFile, sScriptName, ScriptFolder, LogFolder, sXMLFile, fXMLFile, aVBSFiles(6), VBSFile, Count, oShell, RunSilent
 
 '----- Create Objects -----
 Set oFSO=CreateObject("Scripting.FileSystemObject")
@@ -17,10 +17,15 @@ Const OpenAsASCII=0
 Const CreateIfNotExist=1
 Const ForAppending=8
 
+'----- Get Script Name -----
+sScriptName=WScript.ScriptFullName
 '----- Get Script Folder -----
-CurrentFolder=oFSO.GetAbsolutePathName(".")
+Set oFile = oFSO.GetFile(sScriptName)
+ScriptFolder=oFSO.GetParentFolderName(oFile)
+'----- Set Log Folder Location -----
+LogFolder=oFSO.BuildPath(ScriptFolder, "\Logs")
 '----- Set path to Tash Scheduler XML file to create -----
-sXMLFile=oFSO.BuildPath(CurrentFolder, "\Monitor-Critical.xml")
+sXMLFile=oFSO.BuildPath(ScriptFolder, "\Monitor-Critical.xml")
 
 '----- If XML File has already been created -----
 If oFSO.FileExists(sXMLFile) Then
@@ -86,7 +91,7 @@ fXMLFile.WriteLine ("  <Actions Context=""Author"">")
 For Each VBSFile In aVBSFiles
 	fXMLFile.WriteLine ("    <Exec>")
 	fXMLFile.WriteLine ("      <Command>wscript.exe</Command>")
-	fXMLFile.WriteLine ("      <Arguments>//nologo " & Chr(34) & CurrentFolder & "\" & aVBSFiles(Count) & Chr(34) & "</Arguments>")
+	fXMLFile.WriteLine ("      <Arguments>//nologo " & Chr(34) & ScriptFolder & "\" & aVBSFiles(Count) & Chr(34) & "</Arguments>")
 	fXMLFile.WriteLine ("    </Exec>")
 	Count=Count+1
 Next

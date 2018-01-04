@@ -8,7 +8,7 @@ Option Explicit
 '----- Initilise Variables -----
 Dim Profile, MSIAfterburner, MSIAfterburnerRegPath, sTempFile, oWMI, oFSO, oShell, cProcesses
 Dim Process, MSIAfterburnerPath, oFile, RunSilent, UninstallString, MSIAfterburnerInstallPath
-Dim CurrentFolder, LogFolder, sLogFile, fLogFile
+Dim sScriptName, ScriptFolder, LogFolder, sLogFile, fLogFile
 '----- Initialise CheckMemoryOverclocks Variables -----
 Dim nVidiaSMI, QueryMemoryOverclocks, OutputFormat, Count, MemoryOverClocks, aMemoryOverClocks
 '----- Initialise Prowl Notification Variables -----
@@ -64,9 +64,13 @@ ProwlDisable=False
 MSIAfterburner="MSIAfterburner.exe"
 MSIAfterburnerRegPath="HKLM\SOFTWARE\WOW6432Node\MSI\Afterburner\InstallPath"
 sTempFile = oFSO.GetSpecialFolder(2).ShortPath & "\" & oFSO.GetTempName
+'----- Get Script Name -----
+sScriptName=WScript.ScriptFullName
 '----- Get Script Folder -----
-CurrentFolder=oFSO.GetAbsolutePathName(".")
-LogFolder=oFSO.BuildPath(CurrentFolder, "\Logs")
+Set oFile = oFSO.GetFile(sScriptName)
+ScriptFolder=oFSO.GetParentFolderName(oFile)
+'----- Set Log Folder Location -----
+LogFolder=oFSO.BuildPath(ScriptFolder, "\Logs")
 '----- If Log Sub Folder doesn't exist -----
 If Not (oFSO.FolderExists(LogFolder)) Then
     '----- Create Log SubFolder-----

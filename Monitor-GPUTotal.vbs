@@ -7,7 +7,7 @@ Option Explicit
 
 '----- Define variables -----
 Dim nVidiaSMI, QueryTotalMem, OutputFormat, RegKey, oShell, oFSO, oRegistry, sTempFile, KeyPath
-Dim ValueName, ProwlAPIKey, ProwlNotifications, ProwlDisable, CurrentFolder, LogFolder, RunSilent
+Dim ValueName, ProwlAPIKey, ProwlNotifications, ProwlDisable, sScriptName, ScriptFolder, LogFolder, RunSilent
 Dim oFile, oGPUMemoryTotal, GPUMemoryTotal, aGPUMemoryTotal, sLogFile, fLogFile, Count, Total
 
 nVidiaSMI="""C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe"""
@@ -34,9 +34,13 @@ End If
 '----- Change line below to True to disable Prowl notifications for this script only -----
 ProwlDisable=False
 
+'----- Get Script Name -----
+sScriptName=WScript.ScriptFullName
 '----- Get Script Folder -----
-CurrentFolder = oFSO.GetAbsolutePathName(".")
-LogFolder = oFSO.BuildPath(CurrentFolder, "\Logs")
+Set oFile = oFSO.GetFile(sScriptName)
+ScriptFolder=oFSO.GetParentFolderName(oFile)
+'----- Set Log Folder Location -----
+LogFolder=oFSO.BuildPath(ScriptFolder, "\Logs")
 '----- If Log Sub Folder doesn't exist -----
 If Not (oFSO.FolderExists(LogFolder)) Then
     '----- Create Log SubFolder-----
